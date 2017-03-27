@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = 'fastlane-plugin-rome'
   spec.version       = Fastlane::Rome::VERSION
   spec.author        = %q{François Benaiteau}
-  spec.email         = %q{francois.benaiteau@sharecare.com}
+  spec.email         = %q{francois.benaiteau@gmail.com}
 
   spec.summary       = %q{An S3 cache tool for Carthage}
   spec.homepage      = "https://github.com/netbe/fastlane-plugin-rome"
