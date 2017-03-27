@@ -2,6 +2,7 @@ module Fastlane
   module Actions
     class RomeAction < Action
       def self.run(params)
+        check_tools!
         validate(params)
 
         cmd = ["rome"]
@@ -32,6 +33,19 @@ module Fastlane
         end
         if command_name != "list" && params[:missing]
           UI.user_error!("Missing option is available only for 'list' command.")
+        end
+      end
+
+      def self.check_tools!
+        if !`which rome`.include?('rome')
+          UI.important("Install Rome for the plugin to work")
+          UI.important("")
+          UI.error("Install it using (Homebrew):")
+          UI.command("brew install blender/homebrew-tap/rome")
+          UI.error("")
+          UI.error("If you don't have homebrew, visit http://brew.sh")
+
+          UI.user_error!("Install Rome and start your lane again!")
         end
       end
 
