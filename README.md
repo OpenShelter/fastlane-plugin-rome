@@ -12,15 +12,20 @@ fastlane add_plugin rome
 
 ## About rome
 
-An S3 cache tool for Carthage
+A S3 cache tool for Carthage
 
-**Note to author:** Add a more detailed description about this plugin here. If your plugin contains multiple actions, make sure to mention them here.
+Please see more on the tool's repo: [Rome](https://github.com/blender/rome)
 
 ## Example
 
-Check out the [example `Fastfile`](fastlane/Fastfile) to see how to use this plugin. Try it by cloning the repo, running `fastlane install_plugins` and `bundle exec fastlane test`.
-
-**Note to author:** Please set up a sample project to make it easy for users to explore what your plugin does. Provide everything that is necessary to try out the plugin in this project (including a sample Xcode/Android project if necessary)
+```bash
+rome(
+    frameworks: ["MyFramework1", "MyFramework2"],   # Specify which frameworks to upload or download
+    command: "upload",                              # One of: download, upload, list
+    verbose: false,                                 # Print rome output inline
+    platform: "all",                                # Define which platform to build for (one of ‘all’, ‘Mac’, ‘iOS’, ‘watchOS’, ‘tvOS‘, or comma-separated values of the formers except for ‘all’)
+)
+```
 
 ## Run tests for this plugin
 

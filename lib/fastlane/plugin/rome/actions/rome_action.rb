@@ -7,9 +7,11 @@ module Fastlane
 
         cmd = ["rome"]
         command_name = params[:command]
-        
+
         if command_name == "version"
           cmd << "--version"
+        elsif command_name == "help"
+          cmd << "--help"
         else
           cmd << command_name
         end
@@ -21,14 +23,19 @@ module Fastlane
         end
 
         cmd << "--platform #{params[:platform]}" if params[:platform]
-        cmd << "-v " if params[:verbose]      
+        cmd << "-v " if params[:verbose]
 
         Actions.sh(cmd.join(' '))
       end
 
       def self.validate(params)
+        unless params
+          Actions.sh("rome --help")
+          exit
+        end
+
         command_name = params[:command]
-        if !(command_name == "upload" || command_name == "download")  && params[:frameworks].count > 0
+        if !(command_name == "upload" || command_name == "download") && params[:frameworks].count > 0
           UI.user_error!("Frameworks option is available only for 'upload'' or 'download' commands.")
         end
         if command_name != "list" && params[:missing]
@@ -37,7 +44,7 @@ module Fastlane
       end
 
       def self.check_tools!
-        if !`which rome`.include?('rome')
+        unless `which rome`.include?('rome')
           UI.important("Install Rome for the plugin to work")
           UI.important("")
           UI.error("Install it using (Homebrew):")
@@ -50,7 +57,7 @@ module Fastlane
       end
 
       def self.available_commands
-        %w(list download upload version)
+        %w(list download upload version help)
       end
 
       def self.available_platforms
@@ -74,7 +81,7 @@ module Fastlane
           FastlaneCore::ConfigItem.new(key: :command,
                                        env_name: "FL_ROME_COMMAND",
                                        description: "Rome command (one of: #{available_commands.join(', ')})",
-                                       default_value: "download",
+                                       default_value: "help",
                                        verify_block: proc do |value|
                                          UI.user_error!("Please pass a valid command. Use one of the following: #{available_commands.join(', ')}") unless available_commands.include? value
                                        end),
@@ -108,7 +115,7 @@ module Fastlane
                                        description: "Framework name or names to upload/download, could be applied only along with the 'upload' or 'download' commands",
                                        default_value: [],
                                        is_string: false,
-                                       type: Array),
+                                       type: Array)
         ]
       end
 
@@ -116,7 +123,7 @@ module Fastlane
         # Adjust this if your plugin only works for a particular platform (iOS vs. Android, for example)
         # See: https://github.com/fastlane/fastlane/blob/master/fastlane/docs/Platforms.md
         #
-        [:ios, :mac].include?(platform)
+        %i(ios mac).include?(platform)
       end
     end
   end

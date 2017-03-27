@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = %q{francois.benaiteau@sharecare.com}
 
   spec.summary       = %q{An S3 cache tool for Carthage}
-  # spec.homepage      = "https://github.com/<GITHUB_USERNAME>/fastlane-plugin-rome"
+  spec.homepage      = "https://github.com/netbe/fastlane-plugin-rome"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
