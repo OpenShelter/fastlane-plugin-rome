@@ -23,6 +23,7 @@ module Fastlane
         end
 
         cmd << "--platform #{params[:platform]}" if params[:platform]
+        cmd << "--cache-prefix #{params[:cacheprefix]}" if params[:cacheprefix]
         cmd << "-v " if params[:verbose]
 
         Actions.sh(cmd.join(' '))
@@ -115,7 +116,13 @@ module Fastlane
                                        description: "Framework name or names to upload/download, could be applied only along with the 'upload' or 'download' commands",
                                        default_value: [],
                                        is_string: false,
-                                       type: Array)
+                                       type: Array),
+
+          FastlaneCore::ConfigItem.new(key: :cacheprefix,
+                                       env_name: "FL_ROME_CACHE_PREFIX",
+                                       description: "Allow a prefix for top level directories to be specified for all commands. Useful to store frameworks built with different Swift versions",
+                                       optional: true,
+                                       is_string: true)
         ]
       end
 
