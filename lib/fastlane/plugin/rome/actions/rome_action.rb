@@ -23,9 +23,26 @@ module Fastlane
         end
 
         cmd << "--platform #{params[:platform]}" if params[:platform]
+        cmd << "--cache-prefix #{params[:cacheprefix]}" if params[:cacheprefix]
         cmd << "-v " if params[:verbose]
 
         Actions.sh(cmd.join(' '))
+      end
+
+      def self.meet_minimum_version(minimum_version)
+        version = Actions.sh('rome --version') #i.e. 0.12.0.31 - Romam uno die non fuisse conditam.
+        version_number = version.split(' - ')[0]
+        
+        minimum_version_parts = minimum_version.split('.')
+        version_parts = version_number.split('.')
+        for i in 0..version_parts.length do
+          part = version_parts[i]
+          min_part = minimum_version_parts[i]
+          if part.to_i < min_part.to_i
+            return false
+          end
+        end
+        return true
       end
 
       def self.validate(params)
@@ -115,7 +132,17 @@ module Fastlane
                                        description: "Framework name or names to upload/download, could be applied only along with the 'upload' or 'download' commands",
                                        default_value: [],
                                        is_string: false,
-                                       type: Array)
+                                       type: Array),
+
+          FastlaneCore::ConfigItem.new(key: :cacheprefix,
+                                       env_name: "FL_ROME_CACHE_PREFIX",
+                                       description: "Allow a prefix for top level directories to be specified for all commands. Useful to store frameworks built with different Swift versions",
+                                       optional: true,
+                                       is_string: true,
+                                       verify_block: proc do |value|
+                                        UI.user_error!("Requires Rome version '0.12.0.31' or later") if !meet_minimum_version("0.12.0.31") 
+                                       end)
+
         ]
       end
 
