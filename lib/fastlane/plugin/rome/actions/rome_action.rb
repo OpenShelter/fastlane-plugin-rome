@@ -24,6 +24,7 @@ module Fastlane
 
         cmd << "--platform #{params[:platform]}" if params[:platform]
         cmd << "--cache-prefix #{params[:cacheprefix]}" if params[:cacheprefix]
+        cmd << "--print-format #{params[:printformat]}" if params[:printformat]
         cmd << "-v " if params[:verbose]
 
         Actions.sh(cmd.join(' '))
@@ -32,7 +33,7 @@ module Fastlane
       def self.meet_minimum_version(minimum_version)
         version = Actions.sh('rome --version') #i.e. 0.12.0.31 - Romam uno die non fuisse conditam.
         version_number = version.split(' - ')[0]
-        
+
         minimum_version_parts = minimum_version.split('.')
         version_parts = version_number.split('.')
         for i in 0..version_parts.length do
@@ -55,8 +56,11 @@ module Fastlane
         if !(command_name == "upload" || command_name == "download") && params[:frameworks].count > 0
           UI.user_error!("Frameworks option is available only for 'upload'' or 'download' commands.")
         end
-        if command_name != "list" && params[:missing]
-          UI.user_error!("Missing option is available only for 'list' command.")
+        if command_name != "list" && (params[:missing] || params [:present])
+          UI.user_error!("Missing/Present option is available only for 'list' command.")
+        end
+        if command_name == "list" && !(params[:printformat] == nil || params[:printformat] == "JSON" || params[:printformat] == "Text")
+            UI.user_error!("Unsupported print format. Supported print formats are 'JSON' and 'Text'.")
         end
       end
 
@@ -81,6 +85,10 @@ module Fastlane
         %w(all iOS Mac tvOS watchOS)
       end
 
+      def self.available_print_formats
+        %w(JSON Text)
+      end
+
       def self.description
         "An S3 cache tool for Carthage"
       end
@@ -102,6 +110,7 @@ module Fastlane
                                        verify_block: proc do |value|
                                          UI.user_error!("Please pass a valid command. Use one of the following: #{available_commands.join(', ')}") unless available_commands.include? value
                                        end),
+
           FastlaneCore::ConfigItem.new(key: :verbose,
                                        env_name: "FL_ROME_VERBOSE",
                                        description: "Print xcodebuild output inline",
@@ -110,6 +119,7 @@ module Fastlane
                                        verify_block: proc do |value|
                                          UI.user_error!("Please pass a valid value for verbose. Use one of the following: true, false") unless value.kind_of?(TrueClass) || value.kind_of?(FalseClass)
                                        end),
+
           FastlaneCore::ConfigItem.new(key: :platform,
                                        env_name: "FL_ROME_PLATFORM",
                                        description: "Define which platform to build for",
@@ -119,6 +129,7 @@ module Fastlane
                                            UI.user_error!("Please pass a valid platform. Use one of the following: #{available_platforms.join(', ')}") unless available_platforms.map(&:downcase).include?(platform.downcase)
                                          end
                                        end),
+
           FastlaneCore::ConfigItem.new(key: :missing,
                                        env_name: "FL_ROME_MISSING",
                                        description: "Option to list only missing frameworks",
@@ -126,6 +137,15 @@ module Fastlane
                                        is_string: false,
                                        verify_block: proc do |value|
                                          UI.user_error!("Please pass a valid value for missing. Use one of the following: true, false") unless value.kind_of?(TrueClass) || value.kind_of?(FalseClass)
+                                       end),
+
+          FastlaneCore::ConfigItem.new(key: :present,
+                                       env_name: "FL_ROME_PRESENT",
+                                       description: "Option to list only present frameworks",
+                                       optional: true,
+                                       is_string: false,
+                                       verify_block: proc do |value|
+                                         UI.user_error!("Please pass a valid value for present. Use one of the following: true, false") unless value.kind_of?(TrueClass) || value.kind_of?(FalseClass)
                                        end),
 
           FastlaneCore::ConfigItem.new(key: :frameworks,
@@ -140,7 +160,17 @@ module Fastlane
                                        optional: true,
                                        is_string: true,
                                        verify_block: proc do |value|
-                                        UI.user_error!("Requires Rome version '0.12.0.31' or later") if !meet_minimum_version("0.12.0.31") 
+                                         UI.user_error!("Requires Rome version '0.12.0.31' or later") if !meet_minimum_version("0.12.0.31")
+                                       end),
+
+          FastlaneCore::ConfigItem.new(key: :printformat,
+                                       env_name: "FL_ROME_PRINT_FORMAT",
+                                       description: "Specify what format to use in the output of the list command. One of 'JSON' or 'Text'. Defaults to 'Text' if omitted",
+                                       optional: true,
+                                       is_string: true,
+                                       verify_block: proc do |value|
+                                         UI.user_error!("Please pass a valid print format. Use one of the following: JSON, Text") unless value == nil || value == "JSON" || value == "Text"
+                                         UI.user_error!("Requires Rome version '0.13.0.33' or later") if !meet_minimum_version("0.13.0.33")
                                        end)
 
         ]
