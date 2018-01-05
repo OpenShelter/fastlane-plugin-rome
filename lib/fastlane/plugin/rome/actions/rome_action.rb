@@ -25,7 +25,7 @@ module Fastlane
         cmd << "--platform #{params[:platform]}" if params[:platform]
         cmd << "--cache-prefix #{params[:cacheprefix]}" if params[:cacheprefix]
         cmd << "--print-format #{params[:printformat]}" if params[:printformat]
-        cmd << "--no-ignore #{params[:noignore]}" if params[:noignore] == true
+        cmd << "--no-ignore" if params[:noignore] == true
         cmd << "-v " if params[:verbose]
 
         Actions.sh(cmd.join(' '))
