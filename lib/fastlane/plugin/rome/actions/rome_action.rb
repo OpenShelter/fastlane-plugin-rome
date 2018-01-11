@@ -25,6 +25,7 @@ module Fastlane
         cmd << "--platform #{params[:platform]}" if params[:platform]
         cmd << "--cache-prefix #{params[:cacheprefix]}" if params[:cacheprefix]
         cmd << "--print-format #{params[:printformat]}" if params[:printformat]
+        cmd << "--no-ignore" if params[:noignore] == true
         cmd << "-v " if params[:verbose]
 
         Actions.sh(cmd.join(' '))
@@ -118,6 +119,16 @@ module Fastlane
                                        optional: true,
                                        verify_block: proc do |value|
                                          UI.user_error!("Please pass a valid value for verbose. Use one of the following: true, false") unless value.kind_of?(TrueClass) || value.kind_of?(FalseClass)
+                                       end),
+
+          FastlaneCore::ConfigItem.new(key: :noignore,
+                                       env_name: "FL_ROME_NOIGNORE",
+                                       description: "Ignore the [IgnoreMap] section of a Romefile",
+                                       is_string: false,
+                                       optional: true,
+                                       verify_block: proc do |value|
+                                         UI.user_error!("Please pass a valid value for noignore. Use one of the following: true, false") unless value.kind_of?(TrueClass) || value.kind_of?(FalseClass)
+                                         UI.user_error!("Requires Rome version '0.13.1.35' or later") if !meet_minimum_version("0.13.1.35")
                                        end),
 
           FastlaneCore::ConfigItem.new(key: :platform,
