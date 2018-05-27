@@ -2,7 +2,6 @@ module Fastlane
   module Actions
     class RomeAction < Action
       def self.run(params)
-        check_tools!
         validate(params)
 
         cmd = [params[:binary_path]]
@@ -31,8 +30,8 @@ module Fastlane
         Actions.sh(cmd.join(' '))
       end
 
-      def self.meet_minimum_version(minimum_version)
-        version = Actions.sh('rome --version') #i.e. 0.12.0.31 - Romam uno die non fuisse conditam.
+      def self.meet_minimum_version(binary_path, minimum_version)
+        version = Actions.sh("#{binary_path} --version") # i.e. 0.12.0.31 - Romam uno die non fuisse conditam.
         version_number = version.split(' - ')[0]
 
         minimum_version_parts = minimum_version.split('.')
@@ -48,9 +47,19 @@ module Fastlane
       end
 
       def self.validate(params)
-        unless params
-          Actions.sh("rome --help")
-          exit
+        binary_path = params[:binary_path]
+        unless params[:binary_path].include?('rome')
+          UI.important("Install Rome for the plugin to work")
+          UI.important("")
+          UI.error("Or install it using CocoaPods:")
+          UI.error("Add `pod 'Rome'` to your Podfile, and set `binary_path` option to `Pods/Rome/rome`")
+          UI.error("")
+          UI.error("Install it using Homebrew:")
+          UI.command("brew install blender/homebrew-tap/rome")
+          UI.error("")
+          UI.error("If you don't have homebrew, visit http://brew.sh")
+
+          UI.user_error!("Install Rome and start your lane again!")
         end
 
         command_name = params[:command]
@@ -61,20 +70,17 @@ module Fastlane
           UI.user_error!("Missing/Present option is available only for 'list' command.")
         end
         if command_name == "list" && !(params[:printformat] == nil || params[:printformat] == "JSON" || params[:printformat] == "Text")
-            UI.user_error!("Unsupported print format. Supported print formats are 'JSON' and 'Text'.")
+          UI.user_error!("Unsupported print format. Supported print formats are 'JSON' and 'Text'.")
+          UI.user_error!("'printformat' option requires Rome version '0.13.0.33' or later") if !meet_minimum_version(binary_path, "0.13.0.33")
         end
-      end
 
-      def self.check_tools!
-        unless `which rome`.include?('rome')
-          UI.important("Install Rome for the plugin to work")
-          UI.important("")
-          UI.error("Install it using (Homebrew):")
-          UI.command("brew install blender/homebrew-tap/rome")
-          UI.error("")
-          UI.error("If you don't have homebrew, visit http://brew.sh")
-
-          UI.user_error!("Install Rome and start your lane again!")
+        noignore = params[:noignore]
+        if noignore != nil
+          UI.user_error!("'noignore' option requires Rome version '0.13.1.35' or later") if !meet_minimum_version(binary_path, "0.13.1.35")
+        end
+        cacheprefix = params[:cacheprefix]
+        if cacheprefix != nil
+          UI.user_error!("'cacheprefix' option requires Rome version '0.12.0.31' or later") if !meet_minimum_version(binary_path, "0.12.0.31")
         end
       end
 
@@ -109,6 +115,7 @@ module Fastlane
                                        description: "Rome binary path, set to `Pods/Rome/rome` if you install Rome via CocoaPods",
                                        optional: true,
                                        default_value: `which rome`),
+
           FastlaneCore::ConfigItem.new(key: :command,
                                        env_name: "FL_ROME_COMMAND",
                                        description: "Rome command (one of: #{available_commands.join(', ')})",
@@ -133,7 +140,6 @@ module Fastlane
                                        optional: true,
                                        verify_block: proc do |value|
                                          UI.user_error!("Please pass a valid value for noignore. Use one of the following: true, false") unless value.kind_of?(TrueClass) || value.kind_of?(FalseClass)
-                                         UI.user_error!("Requires Rome version '0.13.1.35' or later") if !meet_minimum_version("0.13.1.35")
                                        end),
 
           FastlaneCore::ConfigItem.new(key: :platform,
@@ -174,20 +180,13 @@ module Fastlane
                                        env_name: "FL_ROME_CACHE_PREFIX",
                                        description: "Allow a prefix for top level directories to be specified for all commands. Useful to store frameworks built with different Swift versions",
                                        optional: true,
-                                       is_string: true,
-                                       verify_block: proc do |value|
-                                         UI.user_error!("Requires Rome version '0.12.0.31' or later") if !meet_minimum_version("0.12.0.31")
-                                       end),
+                                       is_string: true),
 
           FastlaneCore::ConfigItem.new(key: :printformat,
                                        env_name: "FL_ROME_PRINT_FORMAT",
                                        description: "Specify what format to use in the output of the list command. One of 'JSON' or 'Text'. Defaults to 'Text' if omitted",
                                        optional: true,
-                                       is_string: true,
-                                       verify_block: proc do |value|
-                                         UI.user_error!("Please pass a valid print format. Use one of the following: JSON, Text") unless value == nil || value == "JSON" || value == "Text"
-                                         UI.user_error!("Requires Rome version '0.13.0.33' or later") if !meet_minimum_version("0.13.0.33")
-                                       end)
+                                       is_string: true)
 
         ]
       end
