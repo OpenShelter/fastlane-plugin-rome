@@ -5,7 +5,7 @@ module Fastlane
         check_tools!
         validate(params)
 
-        cmd = ["rome"]
+        cmd = [params[:binary_path]]
         command_name = params[:command]
 
         if command_name == "version"
@@ -104,6 +104,11 @@ module Fastlane
 
       def self.available_options
         [
+          FastlaneCore::ConfigItem.new(key: :binary_path,
+                                       env_name: "FL_ROME_BINARY_PATH",
+                                       description: "Rome binary path, set to `Pods/Rome/rome` if you install Rome via CocoaPods",
+                                       optional: true,
+                                       default_value: `which rome`),
           FastlaneCore::ConfigItem.new(key: :command,
                                        env_name: "FL_ROME_COMMAND",
                                        description: "Rome command (one of: #{available_commands.join(', ')})",
