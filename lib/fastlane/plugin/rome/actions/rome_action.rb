@@ -29,6 +29,7 @@ module Fastlane
 
         action = Actions.sh(cmd.join(' '))
         UI.message(action)
+        return action
       end
 
       def self.meet_minimum_version(binary_path, minimum_version)
