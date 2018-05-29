@@ -4,7 +4,7 @@ module Fastlane
       def self.run(params)
         validate(params)
 
-        cmd = [params[:binary_path]]
+        cmd = [params[:binary_path].chomp]
         command_name = params[:command]
 
         if command_name == "version"
@@ -27,7 +27,8 @@ module Fastlane
         cmd << "--no-ignore" if params[:noignore] == true
         cmd << "-v " if params[:verbose]
 
-        Actions.sh(cmd.join(' '))
+        action = Actions.sh(cmd.join(' '))
+        UI.message(action)
       end
 
       def self.meet_minimum_version(binary_path, minimum_version)
@@ -47,8 +48,8 @@ module Fastlane
       end
 
       def self.validate(params)
-        binary_path = params[:binary_path]
-        unless params[:binary_path].include?('rome')
+        binary_path = params[:binary_path].chomp
+        unless binary_path.include?('rome')
           UI.important("Install Rome for the plugin to work")
           UI.important("")
           UI.error("Or install it using CocoaPods:")
@@ -63,12 +64,14 @@ module Fastlane
         end
 
         command_name = params[:command]
-        if !(command_name == "upload" || command_name == "download") && params[:frameworks].count > 0
+        if !(command_name == "upload" || command_name == "download") && (params[:frameworks] || []).count > 0
           UI.user_error!("Frameworks option is available only for 'upload'' or 'download' commands.")
         end
+
         if command_name != "list" && (params[:missing] || params [:present])
           UI.user_error!("Missing/Present option is available only for 'list' command.")
         end
+
         if command_name == "list" && !(params[:printformat] == nil || params[:printformat] == "JSON" || params[:printformat] == "Text")
           UI.user_error!("Unsupported print format. Supported print formats are 'JSON' and 'Text'.")
           UI.user_error!("'printformat' option requires Rome version '0.13.0.33' or later") if !meet_minimum_version(binary_path, "0.13.0.33")
@@ -105,7 +108,7 @@ module Fastlane
       end
 
       def self.details
-        "Rome is a tool that allows developers on Apple platforms to use Amazon's S3 as a shared cache for frameworks built with Carthage."
+        "Rome is a tool that allows developers on Apple platforms to use Amazon's S3o and others as a shared cache for frameworks built with Carthage."
       end
 
       def self.available_options
