@@ -27,7 +27,8 @@ module Fastlane
         cmd << "--no-ignore" if params[:noignore] == true
         cmd << "-v " if params[:verbose]
 
-        Actions.sh(cmd.join(' '))
+        action = Actions.sh(cmd.join(' '))
+        UI.message(action)
       end
 
       def self.meet_minimum_version(binary_path, minimum_version)
