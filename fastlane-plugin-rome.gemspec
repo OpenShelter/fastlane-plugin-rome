@@ -6,11 +6,11 @@ require 'fastlane/plugin/rome/version'
 Gem::Specification.new do |spec|
   spec.name          = 'fastlane-plugin-rome'
   spec.version       = Fastlane::Rome::VERSION
-  spec.author        = %q{François Benaiteau}
-  spec.email         = %q{francois.benaiteau@gmail.com}
+  spec.authors       = ['François Benaiteau', 'Tommaso Piazza']
+  spec.email         = ['francois.benaiteau@gmail.com', 'tommaso.piazza@gmail.com']
 
-  spec.summary       = %q{An S3 cache tool for Carthage}
-  spec.homepage      = "https://github.com/netbe/fastlane-plugin-rome"
+  spec.summary       = %q{A cache tool for Carthage}
+  spec.homepage      = "https://github.com/OpenShelter/fastlane-plugin-rome"
   spec.license       = "MIT"
 
   spec.files         = Dir["lib/**/*"] + %w(README.md LICENSE)
