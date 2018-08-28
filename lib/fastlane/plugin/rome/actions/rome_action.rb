@@ -24,6 +24,7 @@ module Fastlane
         cmd << "--platform #{params[:platform]}" if params[:platform]
         cmd << "--cache-prefix #{params[:cacheprefix]}" if params[:cacheprefix]
         cmd << "--print-format #{params[:printformat]}" if params[:printformat]
+        cmd << "--romefile #{params[:romefile]}" if params[:romefile]
         cmd << "--no-ignore" if params[:noignore] == true
         cmd << "-v " if params[:verbose]
 
@@ -190,7 +191,13 @@ module Fastlane
                                        env_name: "FL_ROME_PRINT_FORMAT",
                                        description: "Specify what format to use in the output of the list command. One of 'JSON' or 'Text'. Defaults to 'Text' if omitted",
                                        optional: true,
-                                       is_string: true)
+                                       is_string: true),
+
+          FastlaneCore::ConfigItem.new(key: :romefile,
+                                       env_name: "FL_ROME_ROMEFILE",
+                                       description: "The path to the Romefile to use. Defaults to the \"Romefile\" in the current directory",
+                                       optional: true,
+                                       is_string: true),
 
         ]
       end
