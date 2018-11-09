@@ -26,6 +26,7 @@ module Fastlane
         cmd << "--print-format #{params[:printformat]}" if params[:printformat]
         cmd << "--romefile #{params[:romefile]}" if params[:romefile]
         cmd << "--no-ignore" if params[:noignore] == true
+        cmd << "--no-skip-current" if params[:noskipcurrent] == true
         cmd << "-v " if params[:verbose]
 
         action = Actions.sh(cmd.join(' '))
@@ -87,6 +88,10 @@ module Fastlane
         if cacheprefix != nil
           UI.user_error!("'cacheprefix' option requires Rome version '0.12.0.31' or later") if !meet_minimum_version(binary_path, "0.12.0.31")
         end
+        noskipcurrent = params[:noskipcurrent]
+        if noskipcurrent != nil
+          UI.user_error!("'noskipcurrent' option requires Rome version '0.18.0.51' or later") if !meet_minimum_version(binary_path, "0.18.0.51")
+        end
       end
 
       def self.available_commands
@@ -106,11 +111,11 @@ module Fastlane
       end
 
       def self.authors
-        ["François Benaiteau"]
+        ["François Benaiteau", "Tommaso Piazza"]
       end
 
       def self.details
-        "Rome is a tool that allows developers on Apple platforms to use Amazon's S3o and others as a shared cache for frameworks built with Carthage."
+        "Rome is a tool that allows developers on Apple platforms to use Amazon's S3  and/or others as a shared cache for frameworks built with Carthage."
       end
 
       def self.available_options
@@ -140,7 +145,7 @@ module Fastlane
 
           FastlaneCore::ConfigItem.new(key: :noignore,
                                        env_name: "FL_ROME_NOIGNORE",
-                                       description: "Ignore the [IgnoreMap] section of a Romefile",
+                                       description: "Ignore the `ignoreMap` section of a Romefile",
                                        is_string: false,
                                        optional: true,
                                        verify_block: proc do |value|
@@ -199,6 +204,14 @@ module Fastlane
                                        optional: true,
                                        is_string: true),
 
+          FastlaneCore::ConfigItem.new(key: :noskipcurrent,
+                                       env_name: "FL_ROME_NOSKIPCURRENT",
+                                       description: "Use the `currentMap` section when performing the operation",
+                                       is_string: false,
+                                       optional: true,
+                                       verify_block: proc do |value|
+                                         UI.user_error!("Please pass a valid value for noskipcurrent. Use one of the following: true, false") unless value.kind_of?(TrueClass) || value.kind_of?(FalseClass)
+                                       end)
         ]
       end
 
