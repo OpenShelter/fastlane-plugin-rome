@@ -38,12 +38,22 @@ module Fastlane
         version = Actions.sh("#{binary_path} --version") # i.e. 0.12.0.31 - Romam uno die non fuisse conditam.
         version_number = version.split(' - ')[0]
 
-        minimum_version_parts = minimum_version.split('.')
-        version_parts = version_number.split('.')
-        for i in 0..version_parts.length do
-          part = version_parts[i]
-          min_part = minimum_version_parts[i]
-          if part.to_i < min_part.to_i
+        return version_is_greater_or_equal(version_number, minimum_version)
+      end
+
+      def self.version_is_greater_or_equal(lhs_version, rhs_version)
+
+        lhs_parts = lhs_version.split('.')
+        rhs_parts = rhs_version.split('.')
+
+        for i in 0..lhs_parts.length do
+          part = lhs_parts[i] || "0"
+          min_part = rhs_parts[i] || "0"
+          
+          if part.to_i > min_part.to_i
+            return true
+          elsif part.to_i == min_part.to_i
+          else part.to_i < min_part.to_i
             return false
           end
         end
