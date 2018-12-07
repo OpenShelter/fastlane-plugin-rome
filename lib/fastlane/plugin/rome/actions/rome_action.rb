@@ -29,9 +29,7 @@ module Fastlane
         cmd << "--no-skip-current" if params[:noskipcurrent] == true
         cmd << "-v " if params[:verbose]
 
-        action = Actions.sh(cmd.join(' '))
-        UI.message(action)
-        return action
+        return Actions.sh(cmd.join(' '))
       end
 
       def self.meet_minimum_version(binary_path, minimum_version)
