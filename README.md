@@ -16,7 +16,7 @@ A S3 cache tool for Carthage
 
 Please see more on the tool's repo: [Rome](https://github.com/blender/rome)
 
-## Example
+## Examples
 
 ```bash
 rome(
@@ -24,6 +24,17 @@ rome(
     command: "upload",                              # One of: download, upload, list
     verbose: false,                                 # Print rome output inline
     platform: "all",                                # Define which platform to build for (one of ‘all’, ‘Mac’, ‘iOS’, ‘watchOS’, ‘tvOS‘, or comma-separated values of the formers except for ‘all’)
+    cacheprefix: "Swift_4_2_1",                     # A prefix appended to the top level directories inside the caches. Usefull to separate artifacts between Swift versions
+    romefile: "~/Code/",                            # The path to the Romefile to use. Defaults to the \"Romefile\" in the current directory
+    noignore: "true",                               # Ignore the `ignoreMap` section in the Romefile when performing the operation
+    concurrently: "true",                           # Maximise concurrency while performing the operation. Might make verbose output hard to follow
+)
+```
+
+```bash
+rome(
+    command: "list",                         	    
+    printformat: "JSON",                            # Sets list output formats: JSON or if omitted, default to Text
 )
 ```
 
