@@ -19,6 +19,7 @@ module Fastlane
           cmd.concat params[:frameworks]
         elsif command_name == "list"
           cmd << "--missing" if params[:missing] == true
+          cmd << "--present" if params[:present] == true
         end
 
         cmd << "--platform #{params[:platform]}" if params[:platform]
