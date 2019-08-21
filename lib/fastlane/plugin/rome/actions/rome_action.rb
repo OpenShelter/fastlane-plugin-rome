@@ -19,6 +19,7 @@ module Fastlane
           cmd.concat params[:frameworks]
         elsif command_name == "list"
           cmd << "--missing" if params[:missing] == true
+          cmd << "--present" if params[:present] == true
         end
 
         cmd << "--platform #{params[:platform]}" if params[:platform]
@@ -27,6 +28,7 @@ module Fastlane
         cmd << "--romefile #{params[:romefile]}" if params[:romefile]
         cmd << "--no-ignore" if params[:noignore] == true
         cmd << "--no-skip-current" if params[:noskipcurrent] == true
+        cmd << "--concurrently" if params[:concurrently] == true
         cmd << "-v " if params[:verbose]
 
         return Actions.sh(cmd.join(' '))
@@ -92,13 +94,24 @@ module Fastlane
         if noignore != nil
           UI.user_error!("'noignore' option requires Rome version '0.13.1.35' or later") if !meet_minimum_version(binary_path, "0.13.1.35")
         end
+
         cacheprefix = params[:cacheprefix]
         if cacheprefix != nil
           UI.user_error!("'cacheprefix' option requires Rome version '0.12.0.31' or later") if !meet_minimum_version(binary_path, "0.12.0.31")
         end
+
         noskipcurrent = params[:noskipcurrent]
         if noskipcurrent != nil
           UI.user_error!("'noskipcurrent' option requires Rome version '0.18.0.51' or later") if !meet_minimum_version(binary_path, "0.18.0.51")
+        end
+
+        concurrently = params[:concurrently]
+        if concurrently != nil
+          UI.user_error!("'concurrently' option requires Rome version '0.20.0.56' or later") if !meet_minimum_version(binary_path, "0.20.0.56")
+        end
+
+        if command_name == "list" && params[:concurrently] != nil
+          UI.user_error!("Concurrently option is only avalable with download or upload. Listing is performed concurrently by default.")
         end
       end
 
@@ -219,6 +232,15 @@ module Fastlane
                                        optional: true,
                                        verify_block: proc do |value|
                                          UI.user_error!("Please pass a valid value for noskipcurrent. Use one of the following: true, false") unless value.kind_of?(TrueClass) || value.kind_of?(FalseClass)
+                                       end),
+          
+          FastlaneCore::ConfigItem.new(key: :concurrently,
+                                       env_name: "FL_ROME_CONCURRENTLY",
+                                       description: "Maximize concurrency while performing the operation. Not needed for listing",
+                                       is_string: false,
+                                       optional: true,
+                                       verify_block: proc do |value|
+                                         UI.user_error!("Please pass a valid value for concurrently. Use one of the following: true, false") unless value.kind_of?(TrueClass) || value.kind_of?(FalseClass)
                                        end)
         ]
       end
