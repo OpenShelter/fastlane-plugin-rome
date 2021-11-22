@@ -29,6 +29,7 @@ module Fastlane
         cmd << "--no-ignore" if params[:noignore] == true
         cmd << "--no-skip-current" if params[:noskipcurrent] == true
         cmd << "--concurrently" if params[:concurrently] == true
+        cmd << "--use-xcframeworks" if params[:usexcframeworks] == true
         cmd << "-v " if params[:verbose]
 
         return Actions.sh(cmd.join(' '))
@@ -110,7 +111,17 @@ module Fastlane
           UI.user_error!("'concurrently' option requires Rome version '0.20.0.56' or later") if !meet_minimum_version(binary_path, "0.20.0.56")
         end
 
-        if command_name == "list" && params[:concurrently] != nil
+        usexcframeworks = params[:usexcframeworks]
+        if usexcframeworks != nil
+          UI.user_error!("'usexcframeworks' option requires Rome version '0.24.0.65' or later") if !meet_minimum_version(binary_path, "0.24.0.65")
+        end
+
+        platform = params[:platform]
+        if usexcframeworks != nil && platform != nil
+          UI.user_error!("'usexcframeworks' option cannot be combined with 'platform' option. Only one of them can be provided.")
+        end
+
+        if command_name == "list" && concurrently != nil
           UI.user_error!("Concurrently option is only avalable with download or upload. Listing is performed concurrently by default.")
         end
       end
@@ -233,10 +244,19 @@ module Fastlane
                                        verify_block: proc do |value|
                                          UI.user_error!("Please pass a valid value for noskipcurrent. Use one of the following: true, false") unless value.kind_of?(TrueClass) || value.kind_of?(FalseClass)
                                        end),
-          
+
           FastlaneCore::ConfigItem.new(key: :concurrently,
                                        env_name: "FL_ROME_CONCURRENTLY",
                                        description: "Maximize concurrency while performing the operation. Not needed for listing",
+                                       is_string: false,
+                                       optional: true,
+                                       verify_block: proc do |value|
+                                         UI.user_error!("Please pass a valid value for concurrently. Use one of the following: true, false") unless value.kind_of?(TrueClass) || value.kind_of?(FalseClass)
+                                       end),
+
+          FastlaneCore::ConfigItem.new(key: :usexcframeworks,
+                                       env_name: "FL_ROME_USEXCFRAMEWORKS",
+                                       description: "Search for .xcframeworks when performing the operation. Not needed for listing",
                                        is_string: false,
                                        optional: true,
                                        verify_block: proc do |value|
