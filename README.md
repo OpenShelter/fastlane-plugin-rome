@@ -23,11 +23,12 @@ rome(
     frameworks: ["MyFramework1", "MyFramework2"],   # Specify which frameworks to upload or download
     command: "upload",                              # One of: download, upload, list
     verbose: false,                                 # Print rome output inline
-    platform: "all",                                # Define which platform to build for (one of ‘all’, ‘Mac’, ‘iOS’, ‘watchOS’, ‘tvOS‘, or comma-separated values of the formers except for ‘all’)
+    platform: "all",                                # Define which platform to build for (one of ‘all’, ‘Mac’, ‘iOS’, ‘watchOS’, ‘tvOS‘, or comma-separated values of the formers except for ‘all’). Can't be combined with the 'usexcframeworks' option
     cacheprefix: "Swift_4_2_1",                     # A prefix appended to the top level directories inside the caches. Useful to separate artifacts between Swift versions
     romefile: "~/Code/",                            # The path to the Romefile to use. Defaults to the \"Romefile\" in the current directory
     noignore: "true",                               # Ignore the `ignoreMap` section in the Romefile when performing the operation
     concurrently: "true",                           # Maximise concurrency while performing the operation. Might make verbose output hard to follow
+    usexcframeworks: "true"                         # Search for .xcframeworks when performing the upload or download operation. Can't be combined with the 'platform' option
 )
 ```
 
